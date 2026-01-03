@@ -1,124 +1,85 @@
-# PhonePePlusProject
+# PhonePe Pulse Insights Dashboard
 
 ## Overview
-This project analyzes and visualizes PhonePe Pulse data to uncover transaction, user, device, and insurance trends across India. It uses Python, MySQL, and Streamlit for data import, storage, and interactive dashboarding.
+This project provides a comprehensive dashboard to analyze and visualize PhonePe Pulse data, uncovering trends in transactions, user registrations, device usage, and insurance penetration across India. It leverages a robust tech stack including **Python**, **MySQL**, **Streamlit**, and **Plotly** to deliver interactive and animated insights.
 
 ## Features
-- Import and store PhonePe Pulse data (from https://github.com/PhonePe/pulse.git) into a MySQL database
-- Analyze transaction dynamics, device dominance, insurance penetration, and user engagement
-- Interactive Streamlit dashboard with Altair and bar charts
+- **Data ETL**: Automated extraction of data from the PhonePe Pulse repository and loading into a structured MySQL database.
+- **Interactive Dashboard**: A user-friendly Streamlit interface with navigation for different analysis modules.
+- **Visualizations**: 
+    - **Animated India Map**: Time-series visualization of state-level data.
+    - **Transaction Dynamics**: Deep dive into transaction types and volumes.
+    - **Device & User Analysis**: Insights into device preferences and user growth.
+    - **Insurance Trends**: Analysis of the growing insurance sector on the platform.
 
 ## Folder Structure
-# PhonePePlusProject
-
-## Overview
-This repository contains tools to import, store, analyze, and visualize PhonePe Pulse data (open dataset) for India. The goal is to provide an end-to-end pipeline:
-
-- Extract JSON data from the PhonePe Pulse repository
-- Load it into a MySQL database (structured tables)
-- Explore and visualize results in an interactive Streamlit dashboard
-
-Tech stack: Python (pandas, mysql-connector), MySQL, Streamlit, Altair.
-
-## What you'll find here
-
-- `myenv/import_data.py` — ETL script: parses PhonePe JSON files and inserts records into MySQL tables
-- `myenv/mainpage.py` — Streamlit dashboard to explore transactions, users, devices, and insurance
-- `pulse/` — expected location of the cloned PhonePe Pulse dataset (not included in this repo)
-
-## Quickstart
-
-1. Clone the PhonePe Pulse data (if you haven't):
-
-```powershell
-git clone https://github.com/PhonePe/pulse.git d:\\PhonePePlusProject\\pulse
+```
+PhonePePulseProject/
+├─ Visualizations/          # Modules for specific analysis charts
+│  ├─ case1.py              # Transaction dynamics
+│  ├─ case2.py              # Device dominance
+│  ├─ case3.py              # Transaction analysis
+│  ├─ case4.py              # User registration
+│  └─ case5.py              # Insurance engagement
+├─ pulse-master/            # (Expected) Cloned PhonePe Pulse data source
+├─ import_data.py           # ETL script to parse JSON and populate MySQL
+├─ main_page.py             # Main Streamlit application entry point
+├─ requirements.txt         # Project dependencies
+└─ README.md                # Project documentation
 ```
 
-2. Create and activate a Python virtual environment (Windows PowerShell):
+## Prerequisites
+1.  **Python 3.8+**: Ensure Python is installed.
+2.  **MySQL Server**: You need a local or remote MySQL instance running.
+3.  **PhonePe Pulse Data**: Clone the data repository.
 
+## Installation & Setup
+
+### 1. Clone the Repository
+If you haven't already, clone the specific PhonePe Pulse data repository into the project folder so the ETL script can access it.
+```powershell
+git clone https://github.com/PhonePe/pulse.git pulse-master
+```
+
+### 2. Set Up Virtual Environment (Optional but Recommended)
 ```powershell
 python -m venv venv
-.\\venv\\Scripts\\Activate.ps1
-pip install --upgrade pip
+.\venv\Scripts\Activate
 ```
 
-3. Install required Python packages:
+### 3. Install Dependencies
+Install all required Python packages using `pip`:
+```powershell
+pip install -r requirements.txt
+```
+
+### 4. Database Configuration
+1.  Open `main_page.py` and `import_data.py`.
+2.  Update the MySQL connection details (`MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_DB`) to match your local setup.
+3.  Ensure the database (e.g., `project_data_base`) exists or let the script accept the credentials to create tables within it.
+
+### 5. Data Import (ETL)
+Before running the dashboard, you must populate the database:
+```powershell
+python import_data.py
+```
+*Note: This process may take some time as it processes a large volume of JSON files.*
+
+## How to Run the App
+Once the database is ready, launch the Streamlit dashboard:
 
 ```powershell
-pip install pandas mysql-connector-python streamlit altair
+streamlit run main_page.py
 ```
 
-4. Configure MySQL:
-
-- Start your MySQL server and create a database (example name: `phoneplus`).
-- Update the MySQL credentials in `myenv/import_data.py` and `myenv/mainpage.py` if needed.
-
-```sql
-CREATE DATABASE phoneplus;
-```
-
-5. (Optional) If you already ran the import and got "out of range" errors, run these ALTER statements in MySQL to convert problematic columns to BIGINT:
-
-```sql
-ALTER TABLE transactions MODIFY `count` BIGINT;
-ALTER TABLE users MODIFY registered_users BIGINT;
-ALTER TABLE users MODIFY app_opens BIGINT;
-ALTER TABLE devices MODIFY registered_users BIGINT;
-ALTER TABLE devices MODIFY app_opens BIGINT;
-ALTER TABLE insurance MODIFY `count` BIGINT;
-```
-
-6. Import the data (this can take time depending on dataset size):
-
+Or, if you prefer using python module syntax:
 ```powershell
-python myenv\\import_data.py
+python -m streamlit run main_page.py
 ```
 
-7. Important: run the importer before starting the dashboard
+The application will open in your default web browser at `http://localhost:8501`.
 
-Before launching the Streamlit app, make sure the database has been populated by `import_data.py`. The dashboard expects the tables and aggregated data to be present. If you start the dashboard before importing, many pages may show empty results or errors.
-
-8. Run the Streamlit dashboard:
-
-```powershell
-streamlit run myenv\\mainpage.py
-```
-
-Open the URL shown by Streamlit (usually `http://localhost:8501`).
-
-## File structure
-
-```
-PhonePePlusProject/
-├─ myenv/
-│  ├─ import_data.py      # ETL script (parse JSON -> MySQL)
-│  └─ mainpage.py         # Streamlit dashboard
-├─ pulse/                 # (git clone of PhonePe/pulse) - data source
-└─ README.md
-```
-
-Additional files created in this repo:
-
-- `requirements.txt` — lists Python packages required by the project.
-- `myenv/db_migrate.sql` — optional SQL script with ALTER TABLE statements to convert INT columns to BIGINT if you encounter "out of range" errors during import.
-
-
-## Troubleshooting & Tips
-
-- "Out of range value for column 'count'" — convert `count` columns to `BIGINT` as shown above.
-- Missing data paths — the Pulse repo layout may change. If an ETL step fails due to missing folders, check the `pulse/data` folder and adapt `PULSE_DATA_PATH` in `import_data.py`.
-- Streamlit caching — the dashboard caches the DB connection using `@st.cache_resource` and avoids closing the cached connection between queries.
-- If you add or change table schemas, either drop and recreate the tables or use `ALTER TABLE` to update column types.
-
-## Development notes
-
-- Keep ETL code (`import_data.py`) separate from the dashboard (`mainpage.py`).
-- The dashboard uses Altair for richer interactive charts (install `altair`).
-
-## Credits
-
-- PhonePe Pulse (data): https://github.com/PhonePe/pulse
-- Libraries: pandas, mysql-connector-python, Streamlit, Altair
-
----
-If you'd like, I can also add a `requirements.txt` and small sample queries or screenshots to this README.
+## Troubleshooting
+- **Database Errors**: Ensure your MySQL server is running and the credentials in the python files are correct.
+- **Missing Data**: Verify that the `pulse-master` folder contains the `data` directory with the JSON files.
+- **Dependency Issues**: Try running `pip install -r requirements.txt` again to ensure all packages are installed.
